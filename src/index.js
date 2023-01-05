@@ -21,6 +21,10 @@ let weather = {
   },
 };
 
+//------------------------------------------------
+// alertAndSearchFromList();
+//------------------------------------------------
+
 function alertAndSearchFromList() {
   let city = prompt("Enter a city");
 
@@ -38,9 +42,8 @@ function alertAndSearchFromList() {
   }
 }
 
-//------------------------------------------------
-// alertAndSearchFromList();
-//------------------------------------------------
+// ---------------set date and default city temprature-------------------------
+//------------------------------------------------------------------------------
 
 function getDate() {
   let now = new Date();
@@ -98,9 +101,8 @@ function updateCityName(name) {
   city.innerHTML = name;
 }
 
-// ----------------------------------------
-setDate();
-//-----------------------------------------
+// ---------------update units (f and c) functions -----------------------------
+//------------------------------------------------------------------------------
 
 let currentUnit = "c"; //if it is farenhite it would be "f"
 
@@ -149,14 +151,15 @@ function updateUnitsOnClick() {
   fahrenheitSign.addEventListener("click", convertToFahrenheit);
 }
 
-//--------------------------------------
-updateUnitsOnClick();
-//--------------------------------------
+//----------------functions related to search cities using api----------------------
+//----------------------------------------------------------------------------------
 
 let apiKey = "97bed167ec49bff56e6c1b63daef9c86";
 
-let citySearcForm = document.querySelector("#search_city_form");
-citySearcForm.addEventListener("submit", searchCity);
+function defaultSearchCity() {
+  let url = `https://api.openweathermap.org/data/2.5/weather?q=New York&units=metric&appid=${apiKey}`;
+  axios.get(url).then(getTempreture);
+}
 
 function searchCity(event) {
   event.preventDefault();
@@ -219,6 +222,18 @@ function searchByCurrentLocation(event) {
   event.preventDefault();
   navigator.geolocation.getCurrentPosition(getLocation);
 }
+
+// ---------------set date and default city temprature-------------------------
+defaultSearchCity();
+setDate();
+//------------------------------------------------------------------------------
+
+updateUnitsOnClick();
+
+//------------------------------------------------------------------------------
+
+let citySearcForm = document.querySelector("#search_city_form");
+citySearcForm.addEventListener("submit", searchCity);
 
 let currentLocation = document.querySelector(".current_location");
 currentLocation.addEventListener("click", searchByCurrentLocation);
