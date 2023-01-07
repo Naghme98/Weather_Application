@@ -230,6 +230,31 @@ function searchByCurrentLocation(event) {
   navigator.geolocation.getCurrentPosition(getLocation);
 }
 
+function showForcast() {
+  let forcastElement = document.querySelector("#forcast");
+  let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  let forcastContent = ``;
+
+  days.forEach(function (day) {
+    forcastContent += `
+      <div class="col-2">
+          <div class="weather-forcast-date">${day}</div>
+          <img
+            src="http://shecodes-assets.s3.amazonaws.com/api/weather/icons/scattered-clouds-night.png"
+            alt=""
+            width="80"
+          />
+          <div class="weather-forcast-temperatures">
+            <span class="weather-forcast-temperature-max">18°</span>
+            <span class="forcast-temperature-min">12°</span>
+          </div>
+      </div>
+      `;
+  });
+
+  forcastElement.innerHTML = forcastContent;
+}
+
 // ---------------default city temprature-------------------------
 defaultSearchCity();
 setDate();
@@ -244,3 +269,5 @@ citySearcForm.addEventListener("submit", searchCity);
 
 let currentLocation = document.querySelector(".current_location");
 currentLocation.addEventListener("click", searchByCurrentLocation);
+
+showForcast();
