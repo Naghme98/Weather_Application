@@ -21,12 +21,19 @@ body {
     hsl(226deg 100% 50%) 100%
   );
   font-family: "Cerebri Sans", sans-serif, monospace;
+  /* font-family: Arial, Helvetica, sans-serif; */
   width: 100vw;
   height: 120vh;
 }
 
 .btn-search {
   color: #990c1a;
+  background: #fbe6c8;
+}
+
+.btn-search:hover {
+  background: #990c1a;
+  color: white;
 }
 
 .input-group {
@@ -36,14 +43,17 @@ body {
 .form-control {
   border: none;
 }
-
+.search-city {
+  background: #fbe6c8;
+}
 .current_location {
   margin-top: 1%;
   height: 28%;
-  padding-top: 1%;
-  padding-bottom: 1%;
-  background: #fff;
-  color: #747c83;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  background: #fbe6c8;
+
+  color: #54524f;
 }
 
 .input-group,
@@ -54,8 +64,9 @@ body {
 }
 
 .current_location:hover {
-  background: #f7dcb7;
-  color: #403f3d;
+  background: #990c1a;
+  color: white;
+  /* #403f3d; */
 }
 
 h1 {
@@ -79,14 +90,15 @@ h1 {
   width: 50%;
   max-width: 600px;
   margin: 60px auto;
-  background-image: linear-gradient(
+  /* background-image: linear-gradient(
     to right bottom,
     #ffedd4,
     #fbe5c6,
     #f7dcb7,
     #f2d4a9,
     #eecc9b
-  );
+  ); */
+  background: #fbe6c8;
   box-shadow: 2px 2px 5px #990c1a, -2px -2px 10px #990c1a;
   min-width: 50%;
   border-radius: 14px;
@@ -94,7 +106,7 @@ h1 {
 
 .today-icon {
   font-size: 70px;
-  padding-top: 30px;
+  padding-top: 16px;
   padding-left: 35px;
   color: #ffa27d;
   margin-left: 10px;
@@ -134,12 +146,13 @@ h1 {
 }
 
 .weather-description {
-  padding-top: 10px;
+  padding-top: 0px;
   padding-left: 30px;
+  margin-top: -10px;
 }
 
-.weather-max-min {
-  margin-top: -42px;
+.real-feel {
+  margin-top: -36px;
   padding-left: 35px;
 }
 
@@ -201,11 +214,17 @@ h1 {
 .celsius:hover,
 .fahrenheit:hover {
   font-weight: 900;
+  cursor: pointer;
 }
 
 .introduce {
   font-weight: 200;
-  font-size: 19px;
+  font-size: 17px;
   color: black;
   text-decoration: underline;
+  text-decoration: none;
+}
+.introduce:hover {
+  color: #990c1a;
+  font-weight: 600;
 }

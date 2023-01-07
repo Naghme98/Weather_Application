@@ -45,8 +45,8 @@ function alertAndSearchFromList() {
 // ---------------set date and default city temprature-------------------------
 //------------------------------------------------------------------------------
 
-function getDate() {
-  let now = new Date();
+function getDate(timestamp) {
+  let now = new Date(timestamp);
   let dayNameLists = [
     "Sunday",
     "Monday",
@@ -84,8 +84,8 @@ function checkDayOrNight(hour) {
   return "PM";
 }
 
-function setDate() {
-  let dateInfo = getDate();
+function setDate(timestamp) {
+  let dateInfo = getDate(timestamp);
   let day = document.querySelector(".day");
   let hour = document.querySelector(".hour");
   let minutes = document.querySelector(".minute");
@@ -104,30 +104,37 @@ function updateCityName(name) {
 // ---------------update units (f and c) functions -----------------------------
 //------------------------------------------------------------------------------
 
-let currentUnit = "c"; //if it is farenhite it would be "f"
+let currentTempretureCel = 0;
+let currentTempretureFah = 0;
+let realFeelCel = 0;
+let realFeelFah = 0;
+let currentUnit = "c";
 
+function celToFahValue(tempreture) {
+  return tempreture * 1.8 + 32;
+}
+function fahToCelValue(temperature) {
+  return (temperature - 32) * (5 / 9);
+}
 function setCurrentTempretureValue(tempreture) {
   let CurrentTempreture = document.querySelector(".today-tempreture");
   CurrentTempreture.innerHTML = Math.round(tempreture);
 }
+
 function convertToCelsius() {
-  if (currentUnit === "c") {
-    return;
-  }
-  let tempreture = getCurrentTempreture();
-  setCurrentTempretureValue((tempreture - 32) * (5 / 9));
+  setCurrentTempretureValue(currentTempretureCel);
+  updateRealFeelTempreture(realFeelCel);
   currentUnit = "c";
   updateCssPropertiesForUnits();
 }
+
 function convertToFahrenheit() {
-  if (currentUnit === "f") {
-    return;
-  }
-  let tempreture = getCurrentTempreture();
-  setCurrentTempretureValue(tempreture * 1.8 + 32);
+  setCurrentTempretureValue(currentTempretureFah);
+  updateRealFeelTempreture(realFeelFah);
   currentUnit = "f";
   updateCssPropertiesForUnits();
 }
+
 function updateCssPropertiesForUnits() {
   let celsiusSign = document.querySelector(".celsius");
   let fahrenheitSign = document.querySelector(".fahrenheit");
@@ -138,9 +145,6 @@ function updateCssPropertiesForUnits() {
     fahrenheitSign.style.color = "black";
     celsiusSign.style.color = "rgb(134, 129, 129)";
   }
-}
-function getCurrentTempreture() {
-  return document.querySelector(".today-tempreture").innerHTML;
 }
 
 function updateUnitsOnClick() {
@@ -154,48 +158,53 @@ function updateUnitsOnClick() {
 //----------------functions related to search cities using api----------------------
 //----------------------------------------------------------------------------------
 
-let apiKey = "97bed167ec49bff56e6c1b63daef9c86";
+let apiKey = "34bto1c24a73506fb3f6e281f6f1b23a";
 
 function defaultSearchCity() {
-  let url = `https://api.openweathermap.org/data/2.5/weather?q=New York&units=metric&appid=${apiKey}`;
+  let url = `https://api.shecodes.io/weather/v1/current?query=New York&units=metric&key=${apiKey}`;
   axios.get(url).then(getTempreture);
 }
 
 function searchCity(event) {
   event.preventDefault();
   let citySearchedName = document.querySelector("#search-city").value;
-  let url = `https://api.openweathermap.org/data/2.5/weather?q=${citySearchedName}&units=metric&appid=${apiKey}`;
+  let url = `https://api.shecodes.io/weather/v1/current?query=${citySearchedName}&units=metric&key=${apiKey}`;
   axios.get(url).then(getTempreture);
 }
 
 function getLocation(position) {
   let latitude = position.coords.latitude;
   let longitude = position.coords.longitude;
-  let url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`;
-  // console.log(latitude);
-  // console.log(longitude);
-
+  let url = `https://api.shecodes.io/weather/v1/current?lat=${latitude}&lon=${longitude}&units=metric&key=${apiKey}`;
   axios.get(url).then(getTempreture);
 }
 
 function getTempreture(response) {
-  let currentTempreture = Math.round(response.data.main.temp);
-  let city = response.data.name;
-  let weatherDescription = response.data.weather[0].main;
-  let humidity = response.data.main.humidity;
+  currentTempretureCel = Math.round(response.data.temperature.current);
+  currentTempretureFah = celToFahValue(currentTempretureCel);
+  let city = response.data.city;
+  let weatherDescription = response.data.condition.description;
+  let humidity = response.data.temperature.humidity;
   let windSpeed = response.data.wind.speed;
-  let minTemp = response.data.main.temp_min;
-  let maxTemp = response.data.main.temp_max;
-  // console.log(currentTempreture);
-  // console.log(response.data);
+  realFeelCel = response.data.temperature.feels_like;
+  realFeelFah = celToFahValue(realFeelCel);
+  let timestamp = response.data.time;
+  let currentIconUrl = response.data.condition.icon_url;
+  setDate(timestamp * 1000);
   updateCityName(city);
-  setCurrentTempretureValue(currentTempreture);
+  setCurrentTempretureValue(currentTempretureCel);
   updateWeatherDescription(weatherDescription);
   updateHumidity(humidity);
   updateWindSpeed(windSpeed);
-  updateMaxAndMinTempreture(maxTemp, minTemp);
+  updateRealFeelTempreture(realFeelCel);
+  updateCurrentIcon(currentIconUrl);
 }
 
+function updateCurrentIcon(iconUrl) {
+  let currentIconElement = document.querySelector("#today-icon");
+  console.log(currentIconElement);
+  currentIconElement.setAttribute("src", iconUrl);
+}
 function updateWeatherDescription(description) {
   let weatherDescription = document.querySelector(".weather-description");
   weatherDescription.innerHTML = description;
@@ -211,11 +220,9 @@ function updateWindSpeed(speed) {
   windSpeed.innerHTML = Math.round(speed);
 }
 
-function updateMaxAndMinTempreture(maxTemp, minTemp) {
-  let minTemprature = document.querySelector(".min");
-  let maxTemprature = document.querySelector(".max");
-  minTemprature.innerHTML = Math.round(minTemp);
-  maxTemprature.innerHTML = Math.round(maxTemp);
+function updateRealFeelTempreture(temp) {
+  let realFeelTemprature = document.querySelector(".real-feel");
+  realFeelTemprature.innerHTML = `Feels like ${Math.round(temp)}°`;
 }
 
 function searchByCurrentLocation(event) {
@@ -223,7 +230,7 @@ function searchByCurrentLocation(event) {
   navigator.geolocation.getCurrentPosition(getLocation);
 }
 
-// ---------------set date and default city temprature-------------------------
+// ---------------default city temprature-------------------------
 defaultSearchCity();
 setDate();
 //------------------------------------------------------------------------------
