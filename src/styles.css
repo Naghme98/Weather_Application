@@ -46,7 +46,9 @@ body {
 .search-city {
   background: #fbe6c8;
 }
-
+input#search-city:focus {
+  background: #fbe6c8;
+}
 .current_location {
   margin-top: 1%;
   height: 28%;
