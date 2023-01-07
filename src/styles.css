@@ -46,6 +46,7 @@ body {
 .search-city {
   background: #fbe6c8;
 }
+
 .current_location {
   margin-top: 1%;
   height: 28%;
@@ -66,7 +67,6 @@ body {
 .current_location:hover {
   background: #990c1a;
   color: white;
-  /* #403f3d; */
 }
 
 h1 {
@@ -90,14 +90,6 @@ h1 {
   width: 50%;
   max-width: 600px;
   margin: 60px auto;
-  /* background-image: linear-gradient(
-    to right bottom,
-    #ffedd4,
-    #fbe5c6,
-    #f7dcb7,
-    #f2d4a9,
-    #eecc9b
-  ); */
   background: #fbe6c8;
   box-shadow: 2px 2px 5px #990c1a, -2px -2px 10px #990c1a;
   min-width: 50%;
