@@ -13,3 +13,6 @@ I used HTML, CSS and JS to implement it.
 - Forecast the future days (min, max temperature + Icons)
 - Using Shecode's weather API to update and get the information (in previous versions I used "OpenWeather API")
 - Convert weather deegres to celicious and Fahrenhite
+
+# Visualization:
+- https://whimsical-jalebi-4b22b0.netlify.app
