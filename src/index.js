@@ -111,28 +111,36 @@ let realFeelFah = 0;
 let currentUnit = "c";
 
 function celToFahValue(tempreture) {
-  return tempreture * 1.8 + 32;
+  return Math.round(tempreture * 1.8 + 32);
 }
 function fahToCelValue(temperature) {
-  return (temperature - 32) * (5 / 9);
+  return Math.round((temperature - 32) * (5 / 9));
 }
 function setCurrentTempretureValue(tempreture) {
   let CurrentTempreture = document.querySelector(".today-tempreture");
-  CurrentTempreture.innerHTML = Math.round(tempreture);
+  CurrentTempreture.innerHTML = tempreture;
 }
 
 function convertToCelsius() {
+  if (currentUnit === "c") {
+    return;
+  }
   setCurrentTempretureValue(currentTempretureCel);
   updateRealFeelTempreture(realFeelCel);
   currentUnit = "c";
   updateCssPropertiesForUnits();
+  updateForecast("c");
 }
 
 function convertToFahrenheit() {
+  if (currentUnit === "f") {
+    return;
+  }
   setCurrentTempretureValue(currentTempretureFah);
   updateRealFeelTempreture(realFeelFah);
   currentUnit = "f";
   updateCssPropertiesForUnits();
+  updateForecast("f");
 }
 
 function updateCssPropertiesForUnits() {
@@ -162,24 +170,24 @@ let apiKey = "34bto1c24a73506fb3f6e281f6f1b23a";
 
 function defaultSearchCity() {
   let url = `https://api.shecodes.io/weather/v1/current?query=New York&units=metric&key=${apiKey}`;
-  axios.get(url).then(getTempreture);
+  axios.get(url).then(displayTempreture);
 }
 
 function searchCity(event) {
   event.preventDefault();
   let citySearchedName = document.querySelector("#search-city").value;
   let url = `https://api.shecodes.io/weather/v1/current?query=${citySearchedName}&units=metric&key=${apiKey}`;
-  axios.get(url).then(getTempreture);
+  axios.get(url).then(displayTempreture);
 }
 
 function getLocation(position) {
   let latitude = position.coords.latitude;
   let longitude = position.coords.longitude;
   let url = `https://api.shecodes.io/weather/v1/current?lat=${latitude}&lon=${longitude}&units=metric&key=${apiKey}`;
-  axios.get(url).then(getTempreture);
+  axios.get(url).then(displayTempreture);
 }
 
-function getTempreture(response) {
+function displayTempreture(response) {
   currentTempretureCel = Math.round(response.data.temperature.current);
   currentTempretureFah = celToFahValue(currentTempretureCel);
   let city = response.data.city;
@@ -190,6 +198,9 @@ function getTempreture(response) {
   realFeelFah = celToFahValue(realFeelCel);
   let timestamp = response.data.time;
   let currentIconUrl = response.data.condition.icon_url;
+  currentUnit = "c";
+  forecastArrayCel = [];
+  forecastArrayFah = [];
   setDate(timestamp * 1000);
   updateCityName(city);
   setCurrentTempretureValue(currentTempretureCel);
@@ -198,11 +209,11 @@ function getTempreture(response) {
   updateWindSpeed(windSpeed);
   updateRealFeelTempreture(realFeelCel);
   updateCurrentIcon(currentIconUrl);
+  getForcast(response.data.coordinates);
 }
 
 function updateCurrentIcon(iconUrl) {
   let currentIconElement = document.querySelector("#today-icon");
-  console.log(currentIconElement);
   currentIconElement.setAttribute("src", iconUrl);
 }
 function updateWeatherDescription(description) {
@@ -225,28 +236,76 @@ function updateRealFeelTempreture(temp) {
   realFeelTemprature.innerHTML = `Feels like ${Math.round(temp)}°`;
 }
 
+function updateForecast(unit) {
+  let forecastTemperature = document.querySelectorAll(
+    ".weather-forcast-temperatures"
+  );
+
+  forecastTemperature.forEach(function (element, index) {
+    let minElement = element.querySelector(".forcast-temperature-min");
+    let maxElement = element.querySelector(".forcast-temperature-max");
+
+    if (unit === "f") {
+      minElement.innerHTML = forecastArrayFah[index].min + "°";
+      maxElement.innerHTML = forecastArrayFah[index].max + "°";
+    } else {
+      minElement.innerHTML = forecastArrayCel[index].min + "°";
+      maxElement.innerHTML = forecastArrayCel[index].max + "°";
+    }
+  });
+}
+
 function searchByCurrentLocation(event) {
   event.preventDefault();
   navigator.geolocation.getCurrentPosition(getLocation);
 }
+function forecastFormatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let dayNameLists = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function showForcast() {
+  return dayNameLists[date.getDay()];
+}
+function getForcast(coordinates) {
+  let url = `https://api.shecodes.io/weather/v1/forecast?lat=${coordinates.latitude}&lon=${coordinates.longitude}&key=${apiKey}&units=metric`;
+  axios.get(url).then(showForcast);
+}
+let forecastArrayCel = [];
+let forecastArrayFah = [];
+function showForcast(response) {
   let forcastElement = document.querySelector("#forcast");
-  let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  let days = response.data.daily;
   let forcastContent = ``;
 
-  days.forEach(function (day) {
+  days.forEach(function (day, index) {
+    if (index === 0) {
+      return;
+    }
+
+    let minMax = {
+      min: Math.round(day.temperature.minimum),
+      max: Math.round(day.temperature.maximum),
+    };
+    forecastArrayCel.push(minMax);
+    forecastArrayFah.push({
+      min: celToFahValue(minMax.min),
+      max: celToFahValue(minMax.max),
+    });
+
     forcastContent += `
-      <div class="col-2">
-          <div class="weather-forcast-date">${day}</div>
+      <div class="col-sm-2">
+          <div class="weather-forcast-date">${forecastFormatDay(day.time)}</div>
           <img
-            src="http://shecodes-assets.s3.amazonaws.com/api/weather/icons/scattered-clouds-night.png"
+            src="${day.condition.icon_url}"
             alt=""
             width="80"
           />
           <div class="weather-forcast-temperatures">
-            <span class="weather-forcast-temperature-max">18°</span>
-            <span class="forcast-temperature-min">12°</span>
+            <span class="forcast-temperature-max">${Math.round(
+              minMax.max
+            )}°</span>
+            <span class="forcast-temperature-min">${Math.round(
+              minMax.min
+            )}°</span>
           </div>
       </div>
       `;
